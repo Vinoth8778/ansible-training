@@ -1,0 +1,20 @@
+- name: Docker image creation and run
+  gather_facts: false
+  hosts: test
+  tasks:
+    - name: Copy docker file to server
+      copy:
+        src: /tmp/Dockerfile
+        dest: /tmp/Dockerfile
+    - name: Creating docker image
+      docker_image:
+        name: vinoth8778/dockerimage
+        path: /tmp
+        state: present
+    - name: Run a docker container
+      docker_container:
+        name: nodejs-webserver
+        image: vinoth8778/dockerimage
+        published_ports: 3000:3000
+        state: started
+        detach: yes

@@ -1,0 +1,45 @@
+- name: Deployment
+  gather_facts: false
+  hosts: test
+  tasks:
+    - name: Remove existing docker packages
+      yum:
+        name: "{{ packages }}"
+        state: absent
+      vars: 
+        packages:
+        - docker
+        - docker-client
+        - docker-common
+        - docker-latest
+        - docker-client-latest 
+        - docker-latest-logrotate 
+        - docker-logrotate 
+        - docker-engine
+    - name: Installation of prerequisites
+      yum: 
+        name: "{{ PrePackages }}"
+        state: present
+      vars: 
+        PrePackages:
+        - yum-utils
+        - device-mapper-persistent-data
+        - lvm2
+    - name: Download repo file and store in local yum repo
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+      become: yes
+    - name: Install docker
+      yum: 
+        name: docker-ce
+        state: present
+    - name: Install docker-py
+      yum:
+        name: python-docker-py
+        state: present
+    - name: Start docker service and enable service
+      service:
+        name: docker
+        state: started
+        enabled: yes
